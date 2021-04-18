@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,12 +18,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView display;
     private Thread thread1;
     private Thread thread2;
+    private Boolean magicNumber = false;
+    private Boolean magicNumberSet = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // message handler
         mHandler = new Handler();
 
         mProgressBar = findViewById( R.id.progressBar );
@@ -46,21 +50,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkMagicNumber( int num ) {
-        boolean magic = false;
-
         // check if magic number
-        if ( num % 7 == 0 ) {
-            magic = true;
-        } else if ( ( num % 4 == 0 ) && ( num - 2 % 10 == 0 ) ) {
-            magic = true;
+        if ( num % 7 == 0 ) { // multiple of 7
+            magicNumber = true;
+        } else if ( ( num % 4 == 0 ) && ( num - 2 % 10 == 0 ) ) { // multiple of four and ends with 2
+            magicNumber = true;
         }
 
-        if ( magic ) {
-            System.out.println( "FOUND MAGIC NUMBER" );
+        if ( magicNumber && !magicNumberSet ) {
 
             display.setText( "Found magic number " + num );
 
-            // do something that ends the threads
+            magicNumberSet = true;
+            mProgressBar.setVisibility( View.GONE );
         }
     }
 
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         public void run() {
 
-            while( true ) {
+            while( !magicNumber ) {
                 // wrap in try catch for interrupt exceptions
                 try {
                     // tell the thread to sleep for a second
@@ -96,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
                     e.getMessage();
                 }
             }
+
+            return;
         }
     };
 }
